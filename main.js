@@ -79,11 +79,9 @@ traverse(ast, preDecodeObject);
 
 //处理object
 
-console.info("Object Decode .......");
-
+console.info("Object Decode .......\n");
 
 traverse(ast, decodeObject);
-
 
 console.info("Control Flow Decoding.......");
 
@@ -92,28 +90,31 @@ traverse(ast, decodeControlFlow);
 console.info("constantFold.......");
 
 traverse(ast, constantFold);
-try {
-    console.info("remove Dead Code.......");
 
-    traverse(ast, removeDeadCode);
+console.info("remove Dead Code.......");
 
-    ast = parser.parse(generator(ast)
-        .code);
+traverse(ast, removeDeadCode);
 
-    traverse(ast, removeDeadCode);
+ast = parser.parse(generator(ast).code);
 
-    traverse(ast, simplifyLiteral);
+traverse(ast, removeDeadCode);
 
+console.info("simplifyLiteral.......");
 
-    //可能会误删一些代码，可屏蔽
-    traverse(ast, deleteObfuscatorCode);
-} catch (e) {
-    console.warn("remove Dead Code failed")
-}
+traverse(ast, simplifyLiteral);
+
+console.info("deleteObfuscatorCode.......");
+
+//可能会误删一些代码，可屏蔽
+traverse(ast, deleteObfuscatorCode);
+
+console.info("FormatMember...");
+
+traverse(ast, FormatMember);
 
 console.timeEnd("处理完毕，耗时");
 
-let { code} = generator(ast, opts = {
+let { code } = generator(ast, opts = {
     jsescOption: {
         "minimal": true
     }
