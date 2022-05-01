@@ -317,6 +317,27 @@ const FormatMember = {
     }
 }
 
+//获取变量的值
+function getBindingValue(identifier, path) {
+    //字面量直接返回
+    if (types.isStringLiteral(identifier)) return identifier.value;
+    if (types.isIdentifier(identifier) && path.scope.hasBinding(identifier.name)) {
+        let binding = path.scope.getBinding(identifier.name);
+        let { constant, constantViolations } = binding;
+        //没有修改
+        if (constant) return binding.path.node.init.value;
+        //修改
+        if (identifier.start < constantViolations[0].node.start) return binding.path.node.init.value;
+        for (constantViolation of constantViolations) {
+            let position = constantViolation.node.start;
+            if (identifier.start > position) {
+                return constantViolation.node.right.value;
+                break;
+            }
+        }
+    }
+}
+
 global.types = types;
 global.parser = parser;
 global.traverse = traverse;
@@ -333,3 +354,4 @@ global.isElementsLiteral = isElementsLiteral;
 global.deleteRepeatDefine = deleteRepeatDefine;
 global.SimplifyIfStatement = SimplifyIfStatement;
 global.FormatMember = FormatMember;
+global.getBindingValue=getBindingValue;

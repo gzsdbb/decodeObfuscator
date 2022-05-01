@@ -26,101 +26,34 @@ const consoleColor = require("./tools/consoleColor");
 
 
 //js混淆代码读取
-process.argv.length > 2 ? encodeFile = process.argv[2] : encodeFile = "./input/demo.js";
-//process.argv.length > 3 ? decodeFile = process.argv[3] : decodeFile = "./output/decodeResult.js";
-decodeFile = process.argv[2] + ".decrypted.js"
-//多个文件输入
+if (process.argv.length > 2) {
+    encodeFile = process.argv[2];
 
-//将源代码解析为AST
-let sourceCode = fs.readFileSync(encodeFile, {
-    encoding: "utf-8"
-});
-let ast = parser.parse(sourceCode);
+    decodeFile = encodeFile.replace(/js$/, "decrypted.js");
 
-console.time("处理完毕，耗时");
+    //将源代码解析为AST
+    let sourceCode = fs.readFileSync(encodeFile, {
+        encoding: "utf-8"
+    });
+    global.ast = parser.parse(sourceCode);
 
+    console.time("处理完毕，耗时");
 
-//字面量解混淆
-console.info("traverse Hex or Unicode String.......");
+    //加载ast插件
+    process.argv.length > 3 ? require("./" + process.argv[3]) : require('./commonPlugin.js')
 
-traverse(ast, simplifyLiteral);
+    console.timeEnd("处理完毕，耗时");
 
-console.info("constantFold.......");
+    let { code} = generator(ast, opts = {
+        jsescOption: {
+            "minimal": true
+        }
+    });
 
-traverse(ast, constantFold);
+    fs.writeFile(decodeFile, code, (err) => {});
 
-console.info("delete Repeat Define.......");
-
-traverse(ast, deleteRepeatDefine);
-
-traverse(ast, SimplifyIfStatement);
-
-traverse(ast, standardLoop);
-
-console.info("resolve Sequence.......");
-
-traverse(ast, resolveSequence);
-
-console.info("traverse CallExpress To ToLiteral.......");
-
-traverse(ast, CallExpressToLiteral);
-
-console.info("constantFold.......");
-
-traverse(ast, constantFold);
-
-
-//object key值Literal
-console.info("Object Preconditioning .......");
-
-traverse(ast, keyToLiteral);
-
-traverse(ast, preDecodeObject);
-
-//处理object
-
-console.info("Object Decode .......\n");
-
-traverse(ast, decodeObject);
-
-console.info("Control Flow Decoding.......");
-
-traverse(ast, decodeControlFlow);
-
-console.info("constantFold.......");
-
-traverse(ast, constantFold);
-
-console.info("remove Dead Code.......");
-
-traverse(ast, removeDeadCode);
-
-ast = parser.parse(generator(ast).code);
-
-traverse(ast, removeDeadCode);
-
-console.info("simplifyLiteral.......");
-
-traverse(ast, simplifyLiteral);
-
-console.info("deleteObfuscatorCode.......");
-
-//可能会误删一些代码，可屏蔽
-traverse(ast, deleteObfuscatorCode);
-
-console.info("FormatMember...");
-
-traverse(ast, FormatMember);
-
-console.timeEnd("处理完毕，耗时");
-
-let { code } = generator(ast, opts = {
-    jsescOption: {
-        "minimal": true
-    }
-});
-
-fs.writeFile(decodeFile, code, (err) => {});
-
-console.info("源文件: " + encodeFile);
-console.info("解密文件: " + decodeFile)
+    console.info("源文件: " + encodeFile);
+    console.info("解密文件: " + decodeFile)
+} else {
+    console.log("Usage: node main.js <decrypted.js> [<plugin.js>]")
+}
