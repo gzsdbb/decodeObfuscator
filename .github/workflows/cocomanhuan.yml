@@ -1,0 +1,26 @@
+name: update cocomanhua keys
+
+on:
+  schedule:
+  - cron: '30 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  updateKeys:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          ref: master
+
+      - name: download decrypted js from website
+        run: |
+          
+
+      - name: extra keys from js file
+        run: |
+          node main.js decrypted.js cocomanhua.js
+          git add coco_keys.json
+          git commit -m 'update cocomanhua keys'
+          git push origin autoCI
