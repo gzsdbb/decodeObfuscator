@@ -1,24 +1,36 @@
-name: update manwa keys
+name: update keys
 
 on:
+  repository_dispatch:
   workflow_dispatch:
-
+    inputs:
+      jsin:
+        description: '选择要运行的插件'
+        required: true
+        default: 'manwa'
+    
+env:
+ THEJS: ${{ github.event.inputs.jsin }}
+ MATRIX_DIRECTORY: ${GITHUB_WORKSPACE}
+ TZ: Asia/Shanghai
 jobs:
   updateKeys:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-          ref: master
+  runs-on: ubuntu-latest
 
+    steps:
+      - name: Checkout
+       uses: actions/checkout@main
+      
       - name: download decrypted js from website
         run: |
           #todo
 
       - name: extra keys from js file
         run: |
-          node main.js decrypted.js manwa.js
-          git add manwa_keys.json
-          git commit -m 'update manwa keys'
-          git push origin autoCI
+          node main.js decrypted.js $THEJS.js
+          
+    - name: upload js keys
+      uses: actions/upload-artifact@main
+      with:
+       name: ${{ env.THEJS}}
+       path: ${{ env.MATRIX_DIRECTORY }}/*.json
