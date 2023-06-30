@@ -27,7 +27,7 @@ jobs:
 
      - name: extra keys from js file
        run: |
-        node main.js decrypted.js ${{THEJS}}.js
+        node main.js decrypted.js ${{ env.THEJS }}.js
           
      - name: upload js keys
        uses: actions/upload-artifact@main
