@@ -1,0 +1,26 @@
+name: update manwa keys
+
+on:
+  schedule:
+  - cron: '30 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  updateKeys:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          ref: master
+
+      - name: download decrypted js from website
+        run: |
+          #todo
+
+      - name: extra keys from js file
+        run: |
+          node main.js decrypted.js manwa.js
+          git add coco_keys.json
+          git commit -m 'update manwa keys'
+          git push origin autoCI
