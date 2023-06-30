@@ -21,16 +21,25 @@ jobs:
      - name: Checkout
        uses: actions/checkout@main
       
-     - name: download decrypted js from website
+     - name: Initialization environment
+       env:
+        DEBIAN_FRONTEND: noninteractive
+       run: |
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install npm pnpm yarn
+        sudo -E apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+
+     - name: Download decrypted js from website
        run: |
         #todo
 
-     - name: extra keys from js file
+     - name: Extra keys from js file
        run: |
-        node main.js decrypted.js ${{ env.THEJS }}.js
+        node main.js decrypted.js $THEJS.js
           
-     - name: upload js keys
+     - name: Upload js keys
        uses: actions/upload-artifact@main
        with:
-         name: ${{ env.THEJS}}
-         path: ${{ env.MATRIX_DIRECTORY }}/*.json
+        name: ${{ env.THEJS}}
+        path: ${{ env.MATRIX_DIRECTORY }}/*.json
