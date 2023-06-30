@@ -13,24 +13,24 @@ env:
  THEJS: ${{ github.event.inputs.jsin }}
  MATRIX_DIRECTORY: ${GITHUB_WORKSPACE}
  TZ: Asia/Shanghai
+ 
 jobs:
   updateKeys:
-  runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+     - name: Checkout
        uses: actions/checkout@main
       
-      - name: download decrypted js from website
-        run: |
+     - name: download decrypted js from website
+       run: |
           #todo
 
-      - name: extra keys from js file
-        run: |
-          node main.js decrypted.js $THEJS.js
+     - name: extra keys from js file
+       run: |
+        node main.js decrypted.js $THEJS.js
           
-    - name: upload js keys
-      uses: actions/upload-artifact@main
-      with:
-       name: ${{ env.THEJS}}
-       path: ${{ env.MATRIX_DIRECTORY }}/*.json
+     - name: upload js keys
+       uses: actions/upload-artifact@main
+       with:
+         name: ${{ env.THEJS}}
+         path: ${{ env.MATRIX_DIRECTORY }}/*.json
